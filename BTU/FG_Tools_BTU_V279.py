@@ -1,11 +1,11 @@
 bl_info = {
 	"name": "BTU",
-	"author": "FG_Tools",
+	"author": "IIIFGIII (discord IIIFGIII#7758)",
 	"version": (1, 0),
 	"blender": (2, 79, 0),
-	"location": "",
+	"location": " T panel > FGT_BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
-	"warning": "Tested on official 2.79b (https://download.blender.org/release/Blender2.79/)",
+	"warning": "Tested/guaranteed work only on official 2.79b (https://download.blender.org/release/Blender2.79/)",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
 	"category": "FG_Tools",
 }
@@ -45,7 +45,7 @@ class BTU_PT_EXP_Settings(bpy.types.Panel):
 		col = layout.column(align=True)
 		btu_p = context.scene.btu_props
 
-		col.prop(btu_p, 'btu_exp_scale', text= 'Export Scale')
+		col.prop(btu_p, 'btu_exp_scale', text= 'Export Scale Factor')
 
 		col.prop(btu_p, 'btu_exp_apptra', text= 'Apply Object Transforms?')
 		if btu_p.btu_exp_apptra:
@@ -109,17 +109,14 @@ class BTU_OT_Expop(bpy.types.Operator):
 	bl_idname = 'fgt.btu_exp_op'
 	bl_label = 'EXPORT_Operator'
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = 'Export individual .fbx for each object in selection (filter mesh objects only!!!).'
+	bl_description = 'Export individual .fbx for each object in selection (filter mesh objects only!!!)'
 
 
 	def execute(self, context):
 		selected_obj_names=[]
-		selected_obj = bpy.context.selected_objects
 		btu_p = context.scene.btu_props
 
-
-
-		for obj in selected_obj:
+		for obj in bpy.context.selected_objects:
 			if obj.type == 'MESH':
 				selected_obj_names.append(obj.name)
 
@@ -157,6 +154,7 @@ class BTU_OT_Expop(bpy.types.Operator):
 			bpy.data.objects[name].select = True
 			bpy.context.scene.objects.active = bpy.data.objects[name]
 			bpy.ops.object.duplicate()
+			bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 
 			if btu_p.btu_exp_apptra:
 				if btu_p.btu_exp_apploc:
@@ -195,17 +193,16 @@ class BTU_OT_Expop(bpy.types.Operator):
 
 			if btu_p.btu_exp_addpref:
 				name = btu_p.btu_exp_pref + name
+
 			if btu_p.btu_exp_remnum:
 				if name.find('.') != -1:
 					name = name[:name.rfind(".") + 1]
+
 			if btu_p.btu_exp_replacedot:
 				if name.find('.') != -1:
 					name = name.replace('.',btu_p.btu_exp_replacedotwith)
-				else:
-					name = name + btu_p.btu_exp_replacedotwith
-			print('begin export')
+
 			comb_exp_path = exp_folder + name + '.fbx'
-			print(comb_exp_path)
 			bpy.ops.export_scene.fbx(
 
 				filepath=comb_exp_path,
@@ -235,7 +232,6 @@ class BTU_OT_Expop(bpy.types.Operator):
 		# Recover selection, filter mesh objects only	
 		for name in selected_obj_names:
 			bpy.data.objects[name].select = True
-
 		bpy.context.scene.objects.active = ob_act
 
 		self.report({'INFO'}, 'Exported {} objects to {}'.format(obj_num,exp_folder))
@@ -247,14 +243,12 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 	bl_idname = 'fgt.btu_copy_obj'
 	bl_label = 'COPY_Operator'
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = 'Copy selected objects data to clipboard for pasting in to UE.'
+	bl_description = 'Copy selected objects data to clipboard for pasting in to UE'
 
 	def execute(self, context):
 		btu_p = context.scene.btu_props
 
 		if len(bpy.context.selected_objects) != 0:
-
-			obj_num = 0
 
 			mesh_p = '/Engine/EditorMeshes/'
 			mesh_n = 'EditorCube.EditorCube'
@@ -264,9 +258,17 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 			out_ob_data = io.StringIO()
 			out_ob_data.write("Begin Map\n\tBegin Level\n\n")
 
-			for sob in bpy.context.selected_objects:
+			selected_obj_names=[]
+			for obj in bpy.context.selected_objects:
+				selected_obj_names.append(obj.name)
 
-				sob_n = sob.name
+			ob_act = bpy.context.scene.objects.active
+			bpy.ops.object.select_all(action='DESELECT')
+			obj_num = 0
+
+			for name in selected_obj_names:
+
+				sob_n = name
 
 				sc_fac = btu_p.btu_copy_scfac
 				offset = btu_p.btu_copy_offset
@@ -289,9 +291,6 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 					if sob_n.find('.') != -1:
 						sob_n = sob_n.replace('.',btu_p.btu_copy_replacedotwith)
 						sob_asn = sob_asn.replace('.',btu_p.btu_copy_replacedotwith)
-					else:
-						sob_n = sob_n + btu_p.btu_copy_replacedotwith
-						sob_asn = sob_asn + btu_p.btu_copy_replacedotwith
 
 				if btu_p.btu_copy_meshpath_b:
 					mesh_p = btu_p.btu_copy_meshpath
@@ -299,13 +298,25 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 
 				out_ob_data.write("\t\t\t\t\tStaticMesh=StaticMesh'\"%s%s\"'\n" % (str(mesh_p), str(mesh_n)))
 
+				# Temporary objects to copy applied parent transforms
+				bpy.data.objects[name].select = True
+				bpy.context.scene.objects.active = bpy.data.objects[name]
+				bpy.ops.object.duplicate()
+				bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+				sob = bpy.context.scene.objects.active
+
 				sob_loc = sob.location
 				sob_rot = (sob.rotation_euler[0], sob.rotation_euler[1], sob.rotation_euler[2])
 				sob_scl = sob.scale
 
+				# Remove temporary object/mesh data
+				d_name = bpy.context.object.data.name
+				bpy.ops.object.delete()
+				bpy.data.meshes.remove(bpy.data.meshes[d_name])
+				bpy.ops.object.select_all(action='DESELECT')
+
 				if not btu_p.btu_copy_addoffset:
 					offset = (0.0,0.0,0.0)
-
 
 				if not btu_p.btu_copy_skiploc or not btu_p.btu_copy_skiptra:
 					out_ob_data.write(("\t\t\t\t\tRelativeLocation=(X=%f,Y=%f,Z=%f)\n") % ((sob_loc[0] * sc_fac) + offset[0], ((sob_loc[1] * sc_fac) * -1) + offset[1], (sob_loc[2] * sc_fac) + offset[2]))
@@ -321,6 +332,11 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 				out_ob_data.write("\t\tEnd Actor\n\n")
 
 				obj_num += 1
+
+			# Recover selection
+			for name in selected_obj_names:
+				bpy.data.objects[name].select = True
+			bpy.context.scene.objects.active = ob_act
 
 			out_ob_data.write("\n\tEnd Level\nEnd Map\n\n")
 			bpy.context.window_manager.clipboard = out_ob_data.getvalue()
@@ -340,7 +356,7 @@ class BTU_Settings_Props(bpy.types.PropertyGroup):
 		subtype='DIR_PATH')	
 
 	btu_exp_scale = bpy.props.FloatProperty(
-		description='Will export models in this scale.', 
+		description='Will export models with this scale factor', 
 		default=1.0, 
 		min=0.001, 
 		max=1000.0, 
@@ -350,102 +366,102 @@ class BTU_Settings_Props(bpy.types.PropertyGroup):
 
 	btu_exp_apptra = bpy.props.BoolProperty(
 		name='',
-		description="Apply objects transforms.",
+		description='Apply object transforms',
 		default=False)
 	btu_exp_apploc = bpy.props.BoolProperty(
 		name='',
-		description="Apply objects lacations - bpy.ops.apply.transformlocrotscale(option='LOC')",
+		description="Apply object location - bpy.ops.apply.transformlocrotscale(option='LOC')",
 		default=False)
 	btu_exp_approt = bpy.props.BoolProperty(
 		name='',
-		description="Apply objects rotations - bpy.ops.apply.transformlocrotscale(option='ROT')",
+		description="Apply object rotation - bpy.ops.apply.transformlocrotscale(option='ROT')",
 		default=False)
 	btu_exp_appscl = bpy.props.BoolProperty(
 		name='',
-		description="Apply objects scales - bpy.ops.apply.transformlocrotscale(option='SCALE')",
+		description="Apply object scale - bpy.ops.apply.transformlocrotscale(option='SCALE')",
 		default=False)
 
 	btu_exp_addpref = bpy.props.BoolProperty(
 		name='',
-		description="Append prefix to object name for FBX file name.",
+		description='Append prefix to object name for FBX file name',
 		default=False)
 	btu_exp_pref = bpy.props.StringProperty(
-		name='Prefix to append to object name.', 
+		name='Prefix to append to object name', 
 		default='SM_')
 
 	btu_exp_replacedot = bpy.props.BoolProperty(
 		name='',
-		description='Replace " . " (dots) in object names for FBX files names. If object name has no " . " it append suffix',
+		description='Replace " . " (dot) in object name for FBX file name',
 		default=False)
 	btu_exp_replacedotwith = bpy.props.StringProperty(
-		name='Character to replace dot. By default "nothing"(remove dot).', 
+		name='Character to replace " . " (dot). By default "nothing"(remove dot)', 
 		default='')
 
 	btu_exp_remnum = bpy.props.BoolProperty(
 		name='',
-		description=' Will remove numbers after " . ".',
+		description='Will remove numbers after " . "(dot)',
 		default=False)
 
 	# Copy to UE properties
 
 	btu_copy_scfac = bpy.props.FloatProperty(
-		description='Scale factor. Example: from Blender with meters units scene to UE (default units centimeters) 1m -> 100cm = 100', 
+		description='Scale factor. Example: from Blender with scene units meters -> to UE (default units centimeters) 1m -> 100cm = 100', 
 		default=100.0, 
 		min=0.001, 
 		max=1000.0, 
 		step=0.01)
 	btu_copy_addoffset = bpy.props.BoolProperty(
 		name='',
-		description="Add location offset values to object location.",
+		description='Add "location offset" values to object location',
 		default=False)
 	btu_copy_offset = bpy.props.FloatVectorProperty(
-		description='Add N units ( default UE units - cantimiters ) to X, Y, Z location. Useful for workflows with levels offset and not only.', 
+		description='Add N units (default UE units - cantimiters) to X, Y, Z location. Useful for workflows with levels offset and not only', 
 		default=(0.0,0.0,0.0),
 		precision=6)
 
 	btu_copy_skiptra = bpy.props.BoolProperty(
 		name='',
-		description="Skip objects transforms.",
+		description='Skip object transforms',
 		default=False)
 	btu_copy_skiploc = bpy.props.BoolProperty(
 		name='',
-		description="Skip objects lacations ( use 0,0,0 instead )",
+		description='Skip object location (use 0,0,0 instead)',
 		default=False)
 	btu_copy_skiprot = bpy.props.BoolProperty(
 		name='',
-		description="Skip objects rotations ( use 0,0,0 instead )",
+		description='Skip object rotation (use 0,0,0 instead)',
 		default=False)
 	btu_copy_skipscl = bpy.props.BoolProperty(
 		name='',
-		description="Skip objects scales ( use 1,1,1 instead )",
+		description='Skip object scale (use 1,1,1 instead)',
 		default=False)
 
 	btu_copy_addpref = bpy.props.BoolProperty(
 		name='',
-		description="Append prefix to object name to copy and paste in UE. New namr will also be used to search for asset.",
+		description='Append prefix to object name to copy and paste in UE. New name will also be used to search for asset',
 		default=False)
 	btu_copy_pref = bpy.props.StringProperty(
-		name='Prefix to append to object name.', 
+		name='Prefix to append to object name', 
 		default='SM_')
 
 	btu_copy_replacedot = bpy.props.BoolProperty(
 		name='',
-		description='Replace " . " (dots) in object names copied for ue UE. If object name has no " . " it append suffix',
+		description='Replace " . " (dot) in object name copied to ue UE',
 		default=False)
 	btu_copy_replacedotwith = bpy.props.StringProperty(
-		name='Character to replace dot. By default "nothing"(remove dot).', 
+		name='Character to replace " . " (dot). By default "nothing"(remove dot)', 
 		default='')
 	
 	btu_copy_meshpath_b = bpy.props.BoolProperty(
 		name='',
-		description='Use folder path to search for asset when paste to UE.',
+		description='Use custom folder path to search for asset when paste to UE. If not - you will paste default UE box mesh',
 		default=False)
 	btu_copy_usenum = bpy.props.BoolProperty(
 		name='',
-		description='Use numbers after " . " while check for asset in custom location.',
+		description='Use numbers after " . " (dot) while check for asset in custom location. Otherwise skip numbers',
 		default=False)
 	btu_copy_meshpath = bpy.props.StringProperty(
-		name='Unreal folder path with assets to use while pasting. You can copy such path from UE reference viewer. Example: /Game/Mesh/', 
+		name='Unreal project folder path with assets to use while pasting. You can copy such path from UE reference viewer. Example: /Game/Mesh/', 
 		default='/Game/Mesh/')
 
 # Register/Unregister
