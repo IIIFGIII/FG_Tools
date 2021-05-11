@@ -53,7 +53,7 @@ class BTU_PT_EXP_Settings(bpy.types.Panel):
 			col.prop(btu_p, 'btu_exp_approt', text= 'Apply Rotation')
 			col.prop(btu_p, 'btu_exp_appscl', text= 'Apply Scale')
 
-		col.prop(btu_p, 'btu_exp_addpref', text= 'Append prefix?')
+		col.prop(btu_p, 'btu_exp_addpref', text= 'Append Prefix?')
 		if btu_p.btu_exp_addpref:
 			col.prop(btu_p, 'btu_exp_pref', text= '')
 
@@ -61,7 +61,7 @@ class BTU_PT_EXP_Settings(bpy.types.Panel):
 		if btu_p.btu_exp_replacedot:
 			col.prop(btu_p, 'btu_exp_replacedotwith', text= '')
 
-		col.prop(btu_p, 'btu_exp_remnum', text= 'Remove numeration?')
+		col.prop(btu_p, 'btu_exp_remnum', text= 'Remove Numeration?')
 
 class BTU_PT_COP_Settings(bpy.types.Panel):
 	bl_label = 'Copy To UE Settings'
@@ -89,7 +89,7 @@ class BTU_PT_COP_Settings(bpy.types.Panel):
 			col.prop(btu_p, 'btu_copy_skiprot', text= 'Skip Rotation')
 			col.prop(btu_p, 'btu_copy_skipscl', text= 'Skip Scale')
 
-		col.prop(btu_p, 'btu_copy_addpref', text= 'Append prefix?')
+		col.prop(btu_p, 'btu_copy_addpref', text= 'Append Prefix?')
 		if btu_p.btu_copy_addpref:
 			col.prop(btu_p, 'btu_copy_pref', text= '')
 
@@ -97,9 +97,9 @@ class BTU_PT_COP_Settings(bpy.types.Panel):
 		if btu_p.btu_copy_replacedot:
 			col.prop(btu_p, 'btu_copy_replacedotwith', text= '')
 
-		col.prop(btu_p, 'btu_copy_meshpath_b', text= 'Path to mesh?')
+		col.prop(btu_p, 'btu_copy_meshpath_b', text= 'Path To Mesh?')
 		if btu_p.btu_copy_meshpath_b:
-			col.prop(btu_p, 'btu_copy_usenum', text= 'Use numeration?')	
+			col.prop(btu_p, 'btu_copy_usenum', text= 'Use Numeration?')	
 			col.prop(btu_p, 'btu_copy_meshpath', text= '')
 
 
