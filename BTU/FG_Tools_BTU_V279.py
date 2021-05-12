@@ -316,12 +316,9 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 					'SURFACE':bpy.data.curves,
 					'FONT':bpy.data.curves,
 					'META':bpy.data.metaballs,
-					'VOLUME':bpy.data.volumes,
-					'GPENCIL':bpy.data.grease_pencils,
 					'ARMATURE':bpy.data.armatures,
 					'LATTICE':bpy.data.lattices,
-					'LIGHT':bpy.data.lights,
-					'LIGHT_PROBE':bpy.data.lightprobes,
+					'LAMP':bpy.data.lamps,
 					'CAMERA':bpy.data.cameras,
 					'SPEAKER':bpy.data.speakers
 					}
