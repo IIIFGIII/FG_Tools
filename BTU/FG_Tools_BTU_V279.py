@@ -5,7 +5,7 @@ bl_info = {
 	"blender": (2, 79, 0),
 	"location": " T panel > FGT_BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
-	"warning": "Tested/guaranteed work only on official 2.79b (https://download.blender.org/release/Blender2.79/)",
+	"warning": "Tested/work on 2.79b (https://download.blender.org/release/Blender2.79/)",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
 	"category": "FG_Tools",
 }
@@ -310,9 +310,33 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 				sob_scl = sob.scale
 
 				# Remove temporary object/mesh data
-				d_name = bpy.context.object.data.name
+				types = {
+					'MESH':bpy.data.meshes,
+					'CURVE':bpy.data.curves,
+					'SURFACE':bpy.data.curves,
+					'FONT':bpy.data.curves,
+					'META':bpy.data.metaballs,
+					'VOLUME':bpy.data.volumes,
+					'GPENCIL':bpy.data.grease_pencils,
+					'ARMATURE':bpy.data.armatures,
+					'LATTICE':bpy.data.lattices,
+					'LIGHT':bpy.data.lights,
+					'LIGHT_PROBE':bpy.data.lightprobes,
+					'CAMERA':bpy.data.cameras,
+					'SPEAKER':bpy.data.speakers
+					}
+				
+				r_data = False
+				if bpy.context.object.type in types:
+					r_data = True
+					d_name = bpy.context.object.data.name
+					d_type = types.get(bpy.context.object.type)
+
 				bpy.ops.object.delete()
-				bpy.data.meshes.remove(bpy.data.meshes[d_name])
+
+				if r_data:
+					d_type.remove(d_type[d_name])
+
 				bpy.ops.object.select_all(action='DESELECT')
 
 				if not btu_p.btu_copy_addoffset:
