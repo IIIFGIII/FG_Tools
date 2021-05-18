@@ -6,7 +6,7 @@ bl_info = {
 	"location": " T panel > FGT_BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
 	"warning": "Tested/work on 2.79b (https://download.blender.org/release/Blender2.79/)",
-	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
+	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU",
 	"category": "FG_Tools",
 }
 
