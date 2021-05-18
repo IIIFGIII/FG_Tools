@@ -3,10 +3,10 @@ bl_info = {
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
 	"version": (1, 0),
 	"blender": (2, 83, 0),
-	"location": "Viev3D > N panel > BTU",
+	"location": "Viev3D > N panel > FG_Tools > BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
 	"warning": "Tested/work on 2.83.13LTS, 2.91, 2.92, 2.93Beta, 3.00Alpha ",
-	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
+	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU",
 	"category": "FG_Tools",
 }
 
