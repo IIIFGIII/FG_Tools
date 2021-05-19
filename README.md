@@ -4,7 +4,7 @@ Each addon I will place here will have [wiki page](https://github.com/IIIFGIII/F
 I made Blender [Artists page for FG Tools](https://blenderartists.org/t/fg-tools/1303872) - welcomed to discuss anything about FG Tools if you have questions or bugreports (also find me in discord IIIFGIII#7758).
 
 
-#### BTU Blender To Unreal
+#### [BTU Blender To Unreal](https://github.com/IIIFGIII/FG_Tools/wiki/BTU)
 Simply designtd tools for batch export mesh/copy objects transforms to Unreal Engine.
 
 ![](https://i.imgur.com/ZoVP59l.gif)
