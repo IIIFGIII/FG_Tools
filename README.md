@@ -12,5 +12,5 @@ Simply designtd tools for batch export mesh/copy objects transforms to Unreal En
 #### ICO Icons Preview
 Preview list of existing in Blender icons.
 
-![](https://i.imgur.com/K4NpnJ9.gif)
+![](https://i.imgur.com/uifzxgT.gif)
 
