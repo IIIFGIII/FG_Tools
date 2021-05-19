@@ -9,7 +9,7 @@ Simply designtd tools for batch export mesh/copy objects transforms to Unreal En
 
 ![](https://i.imgur.com/ZoVP59l.gif)
 
-#### ICO Icons Preview
+#### [ICO Icons Preview](https://github.com/IIIFGIII/FG_Tools/wiki/ICO)
 Preview list of existing in Blender icons.
 
 ![](https://i.imgur.com/uifzxgT.gif)
