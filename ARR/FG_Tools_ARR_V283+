@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "ARR",
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
-	"version": (1, 0),
+	"version": (1, 1),
 	"blender": (2, 83, 0),
 	"location": "Viev3D > N panel > FG Tools > ARR",
 	"description": "Addon remove + reinstall by filepath",
@@ -36,10 +36,10 @@ class ARR_OT_Remove_Reinstall(bpy.types.Operator):
 	def execute(self,context):
 		arr = context.scene.arr_props
 		pre = bpy.ops.preferences
-		if not os.path.exists(arr.arr_path):
+		if not os.path.exists(bpy.path.abspath(arr.arr_path)):
 			self.report({'ERROR'}, f' File path "{arr.arr_path}" not exist!!!')
 			return{'FINISHED'}	
-		pre.addon_install(overwrite=True, filepath= arr.arr_path)
+		pre.addon_install(overwrite=True, filepath= bpy.path.abspath(arr.arr_path))
 		pre.addon_enable(module= bpy.path.display_name_from_filepath(arr.arr_path))
 		return {'FINISHED'}
 
