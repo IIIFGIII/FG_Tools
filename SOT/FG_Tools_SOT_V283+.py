@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "SOT",
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
-	"version": (1, 0),
+	"version": (1, 1),
 	"blender": (2, 83, 0),
 	"location": "Viev3D > N panel > FG Tools > SOT Panel",
 	"description": "SOT or Set Origin Transform tool. Limitation",
@@ -483,12 +483,21 @@ class SOT_OT_Get_Transform(bpy.types.Operator):
 class SOT_OT_Rotate_Ninety(bpy.types.Operator):
 	bl_idname = 'fgt.sot_rotate_ninety'
 	bl_label = 'sot_OT_Rotate_Ninety'
+	bl_description = 'Rotate orientation around this axis by 90 degrees'	
 
 	rop: bpr.StringProperty(name = '', default = '')
 
 	def execute(self,context):
+
 		sot = context.scene.sot_props
-		exec('sot.'+ self.rop[1:] + '=' + 'sot.' + self.rop[1:] + self.rop[0] + str(math.radians(90)))
+
+		euler = mu.Euler((sot.rot_x,sot.rot_y,sot.rot_z),'XYZ')
+		rmt = euler.to_matrix()
+		rop_dic = {'x':rmt.col[0],'y':rmt.col[1],'z':rmt.col[2],'-':-90, '+':90}
+		rmt.rotate(mu.Quaternion(rop_dic.get(self.rop[-1]), math.radians(rop_dic.get(self.rop[0]))))
+		
+		sot.rot_x,sot.rot_y,sot.rot_z = rmt.to_euler()
+
 		return {'FINISHED'}
 
 class SOT_OT_Clear_Value(bpy.types.Operator):
@@ -510,24 +519,27 @@ class SOT_OT_Draw_Axis(bpy.types.Operator):
 	def modal(self,context,event):
 
 		sot = context.scene.sot_props
-
-		stop_it = True
-		for area in bpy.context.window.screen.areas:
-			if area.type == 'VIEW_3D':
-				stop_it = False
-
-		if stop_it:
-			bpy.types.SpaceView3D.draw_handler_remove(self.draw_handler, 'WINDOW')
-			sot.draw_axis = False
-			return {'CANCELLED'}	
-
-
-		context.area.tag_redraw()
+	
 		if not sot.draw_axis:
 			bpy.types.SpaceView3D.draw_handler_remove(self.draw_handler, 'WINDOW')
-			return {'CANCELLED'}
+			return {'CANCELLED'}		
 
-		return {'PASS_THROUGH'}
+		try:
+			context.area.tag_redraw()
+		except:
+			stop_it = True
+			for area in bpy.context.window.screen.areas:
+				if area.type == 'VIEW_3D':
+					stop_it = False			
+			if stop_it:
+				bpy.types.SpaceView3D.draw_handler_remove(self.draw_handler, 'WINDOW')
+				sot.draw_axis = False
+				return {'CANCELLED'}
+			else:
+				return {'PASS_THROUGH'}
+		else:
+			context.area.tag_redraw()
+			return {'PASS_THROUGH'}
 
 	def invoke(self,context,event):
 		for area in bpy.context.window.screen.areas:
