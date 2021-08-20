@@ -3,7 +3,7 @@ bl_info = {
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
 	"version": (1, 1),
 	"blender": (2, 83, 0),
-	"location": "Viev3D > N panel > FG Tools > ARR",
+	"location": "Viev3D > N panel > FGT > ARR",
 	"description": "Addon remove + reinstall by filepath",
 	"warning": "",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools",
@@ -13,11 +13,11 @@ bl_info = {
 import bpy,os
 
 class ARR_PT_Panel(bpy.types.Panel):
-	bl_label = 'ARR Panel'
+	bl_label = 'ARR'
 	bl_idname = 'ARR_PT_Panel'
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
-	bl_category = 'FG_Tools'
+	bl_category = 'FGT'
 	bl_options = {'DEFAULT_CLOSED'}
 
 	def draw(self, context):
