@@ -1,9 +1,9 @@
 bl_info = {
 	"name": "ICO",
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
-	"version": (1, 0),
+	"version": (1, 1),
 	"blender": (2, 83, 0),
-	"location": "Viev3D > N panel > FG Tools > ICO",
+	"location": "Viev3D > N panel > FGT > ICO",
 	"description": "Preview of existing icons/icons names.",
 	"warning": "",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/ICO",
@@ -12,12 +12,14 @@ bl_info = {
 
 import bpy
 
+bpr = bpy.props
+
 class ICO_PT_Panel(bpy.types.Panel):
 	bl_label = 'ICO'
 	bl_idname = 'ICO_PT_Panel'
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
-	bl_category = 'FG_Tools'
+	bl_category = 'FGT'
 	bl_options = {'DEFAULT_CLOSED'}
 
 
@@ -38,28 +40,32 @@ class ICO_PT_Panel(bpy.types.Panel):
 		col.prop(props, 'ico_filter', text = '' )
 		for ico in icons:
 			if ico_f == '':
-				col.operator('fgt.ico_check', icon= ico, text= ico)
+				col.operator('fgt.ico_check', icon= ico, text= ico).copy = ico
 			elif ico.find(ico_f.upper()) != -1:
-				col.operator('fgt.ico_check', icon= ico, text= ico)
+				col.operator('fgt.ico_check', icon= ico, text= ico).copy = ico
 
 class ICO_OP_Operator(bpy.types.Operator):
 	bl_idname = 'fgt.ico_check'
 	bl_label = 'ICO_OP_Operator'
 	bl_option = {'REGISTER'}
-	bl_description = 'Rotator.'
+	bl_description = 'Press button to copy name to clipboard'
+
+	copy: bpr.StringProperty(name= '', default= '')
 
 	def execute(self, context):
+		bpy.context.window_manager.clipboard = self.copy
+		self.report({'INFO'}, f'{self.copy} copied to clipboard.')
 		return{'FINISHED'}
 
 class ICO_Settings_Props(bpy.types.PropertyGroup):
 
-	ico_sorting: bpy.props.EnumProperty(
+	ico_sorting: bpr.EnumProperty(
 		name='Sorting method',
 		description = 'Des',
 		items=[('m1','Blender','',1), ('m2','Alphabetical','',2)],
 	)
 
-	ico_filter: bpy.props.StringProperty(
+	ico_filter: bpr.StringProperty(
 		name = 'Filter icon name.',
 		default = '',
 	)
