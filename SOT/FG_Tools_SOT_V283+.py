@@ -3,7 +3,7 @@ bl_info = {
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
 	"version": (1, 1),
 	"blender": (2, 83, 0),
-	"location": "Viev3D > N panel > FG Tools > SOT Panel",
+	"location": "Viev3D > N panel > FGT > SOT",
 	"description": "SOT or Set Origin Transform tool. Limitation",
 	"warning": "",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools",
@@ -26,6 +26,10 @@ def combine_matrix_v3(v1,v2,v3):
 
 def vector_fix(obm,vector):
 	return (obm.inverted_safe().transposed().to_3x3() @ vector).normalized()
+
+def distance(va,vb):
+	distance = math.sqrt((vb[0]-va[0])**2+(vb[1]-va[1])**2+(vb[2]-va[2])**2)
+	return distance
 
 def vectors_remap(vx,vy,vz,sot):
 
@@ -250,9 +254,62 @@ def draw_axis_main(self,context):
 	bco = bpy.context
 	sot = context.scene.sot_props
 
-	vc = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0),
-		(0.0, 0.0, 0.0), (0.0, 1.0, 0.0),
-		(0.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
+	vc = [(-0.3, 0.0, 0.0), (-0.1, 0.0, 0.0),
+		(0.0, -0.3, 0.0), (0.0, -0.1, 0.0),
+		(0.0, 0.0, -0.3), (0.0, 0.0, -0.1),
+		(0.1, 0.0, 0.0), (1.0, 0.0, 0.0),
+		(0.0, 0.1, 0.0), (0.0, 1.0, 0.0),
+		(0.0, 0.0, 0.1), (0.0, 0.0, 1.0)]
+	vcm = []
+
+	loc = mu.Vector((sot.loc_x,sot.loc_y,sot.loc_z))
+	euler = mu.Euler((sot.rot_x,sot.rot_y,sot.rot_z),'XYZ')
+	rot = euler.to_matrix()
+
+
+	if context.space_data.region_3d.view_perspective == 'ORTHO':
+		scl = bco.area.spaces.active.region_3d.view_distance/10
+
+	elif context.space_data.region_3d.view_perspective == 'PERSP':
+		vmt = bco.area.spaces.active.region_3d.view_matrix
+		loc_v = mu.Vector((vmt.col[3][:3]))
+		scl = abs(distance(loc,loc_v))/10
+
+	else:
+		scl = bco.area.spaces.active.region_3d.view_distance/10
+
+	
+
+	#print(scl)
+
+
+
+	for v in vc:
+		v = (rot @ (mu.Vector(v) * scl)) + loc
+		vcm.append(v)
+
+	shader = gpu.shader.from_builtin('3D_SMOOTH_COLOR')
+	col = [(1.0, 1.0, 1.0, 0.8), (1.0, 1.0, 1.0, 0.8),
+		(1.0, 1.0, 1.0, 0.8), (1.0, 1.0, 1.0, 0.8),
+		(1.0, 1.0, 1.0, 0.8), (1.0, 1.0, 1.0, 0.8),
+		(1.0, 0.0, 0.0, 1.0), (1.0, 0.0, 0.0, 1.0),
+		(0.0, 1.0, 0.0, 1.0), (0.0, 1.0, 0.0, 1.0),
+		(0.0, 0.0, 1.0, 1.0), (0.0, 0.0, 1.0, 1.0)]
+	batch = batch_for_shader(shader, 'LINES', {"pos": vcm, "color": col})
+	bgl.glLineWidth(5)
+	shader.bind()
+	batch.draw(shader)
+	bgl.glLineWidth(1)
+	return
+
+def draw_spots_main(self,context):
+
+	bco = bpy.context
+	sot = context.scene.sot_props
+
+	vc = [(-0.5, 0.0, 0.0), (0.5, 0.0, 0.0),
+		(0.0, -0.5, 0.0), (0.0, 0.5, 0.0)]
+	
 	vcm = []
 
 
@@ -266,8 +323,7 @@ def draw_axis_main(self,context):
 
 	shader = gpu.shader.from_builtin('3D_SMOOTH_COLOR')
 	col = [(1.0, 0.0, 0.0, 1.0), (1.0, 0.0, 0.0, 1.0),
-		(0.0, 1.0, 0.0, 1.0), (0.0, 1.0, 0.0, 1.0),
-		(0.0, 0.0, 1.0, 1.0), (0.0, 0.0, 1.0, 1.0)]
+		(0.0, 1.0, 0.0, 1.0), (0.0, 1.0, 0.0, 1.0)]
 	batch = batch_for_shader(shader, 'LINES', {"pos": vcm, "color": col})
 	bgl.glLineWidth(5)
 	shader.bind()
@@ -280,34 +336,48 @@ def draw_axis_update(self, context):
 		bpy.ops.fgt.sot_draw_axis('INVOKE_DEFAULT')
 	return
 
+def draw_spots_update(self, context):
+	if context.scene.sot_props.draw_spots:
+		bpy.ops.fgt.sot_draw_spots('INVOKE_DEFAULT')
+	return
 
 
 class SOT_PT_Panel(bpy.types.Panel):
-	bl_label = 'SOT Panel'
+	bl_label = 'SOT'
 	bl_idname = 'SOT_PT_Panel'
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
-	bl_category = 'FG_Tools'
+	bl_category = 'FGT'
 
 	def draw(self, context):
-		bco = bpy.context
-		sot = context.scene.sot_props
-		clear = 'fgt.sot_clear_value'
-		rotate = 'fgt.sot_rotate_ninety'
-		get = 'fgt.sot_get_transform'
 
-		zax_dic = {'z+':'rem_zp','z-':'rem_zn','y+':'rem_yp','y-':'rem_yn','x+':'rem_xp','x-':'rem_xn'}
-		rem_dic = {'z+':sot.rem_zp,'z-':sot.rem_zn,'y+':sot.rem_yp,'y-':sot.rem_yn,'x+':sot.rem_xp,'x-':sot.rem_xn}
+		sot = context.scene.sot_props
 
 		layout = self.layout
 		col = layout.column(align=True)
 
-
 		col.operator('fgt.sot_set_origin', icon='TRANSFORM_ORIGINS', text='Set Origin Location').rot = False
-		col.operator('fgt.sot_set_origin', icon='ORIENTATION_GIMBAL', text='Set Origin Rotation').rot = True
+		col.operator('fgt.sot_set_origin', icon='ORIENTATION_GIMBAL', text='Set Origin Orientation').rot = True
 		col.separator(factor=1)
 		col.prop(sot, 'draw_axis', text= 'Hide Helper Axis' if sot.draw_axis else 'Show Helper Axis', icon='EMPTY_AXIS', toggle= True)
 
+class SOT_PT_Location(bpy.types.Panel):
+	bl_label = 'Location'
+	bl_idname = 'SOT_PT_Location'
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = 'FGT'
+	bl_parent_id = 'SOT_PT_Panel'
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+
+		sot = context.scene.sot_props
+		clear = 'fgt.sot_clear_value'
+		get = 'fgt.sot_get_transform'
+
+		layout = self.layout
+		col = layout.column(align=True)
 
 		row = col.row(align=True)
 		row.label(text= 'Location Values')
@@ -327,7 +397,37 @@ class SOT_PT_Panel(bpy.types.Panel):
 		row.operator(get, icon='PIVOT_CURSOR', text='Cursor').gop = 'l_c'
 		row.operator(get, icon='PIVOT_ACTIVE', text='Active').gop = 'l_a'
 
-		col.separator(factor=3)
+class SOT_PT_Orientation(bpy.types.Panel):
+	bl_label = 'Orientation'
+	bl_idname = 'SOT_PT_Orientation'
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = 'FGT'
+	bl_parent_id = 'SOT_PT_Panel'
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		bco = bpy.context
+		sot = context.scene.sot_props
+		rotate = 'fgt.sot_rotate_ninety'
+		clear = 'fgt.sot_clear_value'
+		get = 'fgt.sot_get_transform'
+
+		zax_dic = {'z+':'rem_zp','z-':'rem_zn','y+':'rem_yp','y-':'rem_yn','x+':'rem_xp','x-':'rem_xn'}
+		rem_dic = {'z+':sot.rem_zp,'z-':sot.rem_zn,'y+':sot.rem_yp,'y-':sot.rem_yn,'x+':sot.rem_xp,'x-':sot.rem_xn}
+
+
+		mt = bco.area.spaces.active.region_3d.view_matrix#.to_3x3().inverted()
+		loc_v = mt.col[3]
+		scl = abs(distance(mu.Vector((0,0,0)),loc_v))/0.2
+
+		layout = self.layout
+		col = layout.column(align=True)
+
+		row = col.row(align=True)
+		row.label(text= str(scl))
+
+
 
 		row = col.row(align=True)
 		row.label(text= 'Rotation Values')
@@ -360,6 +460,84 @@ class SOT_PT_Panel(bpy.types.Panel):
 		row = col.row(align=True)			
 		row.prop(sot, zax_dic.get(sot.z_axis), text= '')
 		row.operator(clear, icon='X' if rem_dic.get(sot.z_axis) != '1' else 'DOT', text='').cop = zax_dic.get(sot.z_axis)
+
+class SOT_PT_Fixed_Snap(bpy.types.Panel):
+	bl_label = 'Fixed Spots Snap'
+	bl_idname = 'SOT_PT_Fixed_Snap'
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = 'FGT'
+	bl_parent_id = 'SOT_PT_Panel'
+	bl_options = {'DEFAULT_CLOSED'}
+
+	def draw(self, context):
+		bco = bpy.context
+		sot = context.scene.sot_props
+
+		layout = self.layout
+		#split = layout.split()
+		col = layout.column(align=True)
+
+
+
+
+		col.prop(sot, 'draw_spots', text= 'Hide Spots Preview' if sot.draw_spots else 'Show Spots Preview', icon='AXIS_FRONT', toggle= True)
+		col.separator(factor=1)
+
+		row = col.row(align=True)
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_BREAKDOWN_VEC', text='')				.dop = 'np'
+		row.operator('fgt.sot_fixed_snap', icon='DOT', text='')									.dop = 'cp'
+		row.operator('fgt.sot_fixed_snap', icon='DOT', text='')									.dop = 'pp'
+		row.split(factor=0.3, align= True)
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_EXTREME_VEC', text='Bound Center')		.dop = 'bc'
+
+		row = col.row(align=True)
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_BREAKDOWN_VEC', text='')				.dop = 'nc'
+		row.operator('fgt.sot_fixed_snap', icon='DOT', text='')									.dop = 'cc'
+		row.operator('fgt.sot_fixed_snap', icon='DOT', text='')									.dop = 'pc'
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_KEYFRAME_VEC', text='Center Of Mass')	.dop = 'cm'
+		
+		row = col.row(align=True)
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_BREAKDOWN_VEC', text='')				.dop = 'nn'
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_BREAKDOWN_VEC', text='')				.dop = 'cn'
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_BREAKDOWN_VEC', text='')				.dop = 'pn'
+		row.operator('fgt.sot_fixed_snap', icon='KEYTYPE_JITTER_VEC', text='Border Mesh')		.dop = 'ep'
+
+		col.separator(factor=2)
+
+		row = col.row(align=True)
+		row.prop_enum(sot, 'drop_p', value= '1')
+		row.prop_enum(sot, 'drop_p', value= '2')
+		row.prop_enum(sot, 'drop_p', value= '3')
+		row = col.row(align=True)
+		row.prop_enum(sot, 'drop_d', value= '1')
+		row.prop_enum(sot, 'drop_d', value= '2')
+		row = col.row(align=True)
+		row.prop_enum(sot, 'drop_s', value= '1')
+		row.prop_enum(sot, 'drop_s', value= '2')
+
+
+
+def set_origin_location(x,y,z,bco,aob):
+
+	loc = aob.matrix_world.col[3]
+	pos = mu.Vector((x,y,z,1))
+	dif = mu.Vector((pos - loc)[:3])
+	aob.matrix_world.col[3] = pos
+	obm = aob.matrix_world
+
+	if bco.mode == 'OBJECT':
+		for v in aob.data.vertices:
+			v.co = v.co - ( obm.to_3x3().inverted() @ dif)
+		aob.data.update()
+	elif bco.mode == 'EDIT_MESH':
+		bmd = bmesh.from_edit_mesh(bco.edit_object.data)
+		for v in bmd.verts:
+			v.co = v.co - ( obm.to_3x3().inverted() @ dif)	
+		bpy.ops.object.editmode_toggle()
+		bpy.ops.object.editmode_toggle()
+	return	
+
 
 class SOT_OT_Set_Origin(bpy.types.Operator):
 	bl_idname = 'fgt.sot_set_origin'
@@ -416,26 +594,7 @@ class SOT_OT_Set_Origin(bpy.types.Operator):
 				bpy.ops.object.editmode_toggle()
 
 		else:
-			loc = aob.matrix_world.col[3]
-			pos = mu.Vector((sot.loc_x,sot.loc_y,sot.loc_z,1))
-			dif = mu.Vector((pos - loc)[:3])
-
-			tar = mu.Vector((sot.loc_x,sot.loc_y,sot.loc_z))
-
-			aob.matrix_world.col[3] = pos
-
-			obm = aob.matrix_world
-
-			if bco.mode == 'OBJECT':
-				for v in aob.data.vertices:
-					v.co = v.co - ( obm.to_3x3().inverted() @ dif)
-				aob.data.update()
-			elif bco.mode == 'EDIT_MESH':
-				bmd = bmesh.from_edit_mesh(bco.edit_object.data)
-				for v in bmd.verts:
-					v.co = v.co - ( obm.to_3x3().inverted() @ dif)	
-				bpy.ops.object.editmode_toggle()
-				bpy.ops.object.editmode_toggle()
+			set_origin_location(sot.loc_x,sot.loc_y,sot.loc_z,bco,aob)
 
 		return {'FINISHED'}
 
@@ -454,7 +613,6 @@ class SOT_OT_Get_Transform(bpy.types.Operator):
 		bco = bpy.context
 		bcv = bco.view_layer
 		aob = bcv.objects.active
-		sob = bco.selected_objects
 
 		if gop == 'l_c':		#Get location from Cursor
 			set_manual_values(sot,get_cursor_loc_rot(bco,sot,True),True)
@@ -482,7 +640,7 @@ class SOT_OT_Get_Transform(bpy.types.Operator):
 
 class SOT_OT_Rotate_Ninety(bpy.types.Operator):
 	bl_idname = 'fgt.sot_rotate_ninety'
-	bl_label = 'sot_OT_Rotate_Ninety'
+	bl_label = 'SOT_OT_Rotate_Ninety'
 	bl_description = 'Rotate orientation around this axis by 90 degrees'	
 
 	rop: bpr.StringProperty(name = '', default = '')
@@ -495,10 +653,123 @@ class SOT_OT_Rotate_Ninety(bpy.types.Operator):
 		rmt = euler.to_matrix()
 		rop_dic = {'x':rmt.col[0],'y':rmt.col[1],'z':rmt.col[2],'-':-90, '+':90}
 		rmt.rotate(mu.Quaternion(rop_dic.get(self.rop[-1]), math.radians(rop_dic.get(self.rop[0]))))
-		
 		sot.rot_x,sot.rot_y,sot.rot_z = rmt.to_euler()
 
+		if abs(math.degrees(sot.rot_x)) < 0.0001:
+			sot.rot_x = 0
+		if abs(math.degrees(sot.rot_y)) < 0.0001:
+			sot.rot_y = 0
+		if abs(math.degrees(sot.rot_z)) < 0.0001:
+			sot.rot_z = 0
+
 		return {'FINISHED'}
+
+
+
+
+def vco(coord,v,b,number,vector,count):
+	if b:
+		if coord[v] >= number:
+			number = coord[v]
+			if coord[v] == vector[v]/count:
+				vector = vector + coord
+				count += 1
+			else: 
+				vector = coord
+				count = 1
+	else:
+		if coord[v] <= number:
+			number = coord[v]
+			if coord[v] == vector[v]/count:
+				vector = vector + coord
+				count += 1
+			else: 
+				vector = coord
+				count = 1
+	return number,vector,count
+
+def projection(sot,xn,xp,yn,yp,zn,zp,com):
+
+	xc,yc,zc = com[0],com[1],com[2]
+
+	if sot.drop_d == '1': x,y,z = xp,yp,zp
+	else: x,y,z = xn,yn,zn
+
+	if sot.drop_p == '1':
+		points_dict =  {'np':(x,yn,zp),'cp':(x,yc,zp),'pp':(x,yp,zp),
+						'nc':(x,yn,zc),'cc':(x,yc,zc),'pc':(x,yp,zc),
+						'nn':(x,yn,zn),'cn':(x,yc,zn),'pn':(x,yp,zn)}
+	elif sot.drop_p == '2':
+		points_dict =  {'np':(xn,y,zp),'cp':(xc,y,zp),'pp':(xp,y,zp),
+						'nc':(xn,y,zc),'cc':(xc,y,zc),'pc':(xp,y,zc),
+						'nn':(xn,y,zn),'cn':(xc,y,zn),'pn':(xp,y,zn)}
+	else: 
+		points_dict =  {'np':(xn,yp,z),'cp':(xc,yp,z),'pp':(xp,yp,z),
+						'nc':(xn,yc,z),'cc':(xc,yc,z),'pc':(xp,yc,z),
+						'nn':(xn,yn,z),'cn':(xc,yn,z),'pn':(xp,yn,z)}
+	return points_dict
+
+
+class SOT_OT_Fixed_Snap(bpy.types.Operator):
+	bl_idname = 'fgt.sot_fixed_snap'
+	bl_label = 'SOT_OT_Fixed_Snap'
+	bl_description = 'Snap origin position to fixed bounding box point'	
+
+	dop: bpr.StringProperty(name = '', default = '')
+
+	def execute(self,context):
+		sot = context.scene.sot_props
+		dop = self.dop
+		bco = bpy.context
+		bcv = bco.view_layer
+		aob = bcv.objects.active
+		
+		obm = aob.matrix_world
+
+		#drop_p_dict = {1:}
+
+
+		if bco.mode == 'OBJECT':
+
+			vec = mu.Vector((0,0,0))
+			fv = obm @ aob.data.vertices[0].co
+
+			xn,xp,yn,yp,zn,zp = fv[0],fv[0],fv[1],fv[1],fv[2],fv[2]
+			xnv = xpv = ynv = ypv = znv = zpv = fv
+			xnc = xpc = ync = ypc = znc = zpc = 1
+
+			for v in aob.data.vertices[1:]:
+
+				co = obm @ v.co
+
+				xn,xnv,xnc = vco(co,0,False,xn,xnv,xnc)
+				xp,xpv,xpc = vco(co,0,True,xp,xpv,xpc)
+				yn,ynv,ync = vco(co,1,False,yn,ynv,ync)
+				yp,ypv,ypc = vco(co,1,True,yp,ypv,ypc)
+				zn,znv,znc = vco(co,2,False,zn,znv,znc)
+				zp,zpv,zpc = vco(co,2,True,zp,zpv,zpc)
+
+			if xnc != 1: xnv = xnv/xnc
+			if xpc != 1: xpv = xpv/xpc
+			if ync != 1: ynv = ynv/ync
+			if ypc != 1: ypv = ypv/ypc
+			if znc != 1: znv = znv/znc
+			if zpc != 1: zpv = zpv/zpc
+			com = mu.Vector((((xn+xp)/2),((yn+yp)/2),((zn+zp)/2)))
+
+			pp =  mu.Vector(projection(sot,xn,xp,yn,yp,zn,zp,com).get(dop))
+			for k,v in projection(sot,xn,xp,yn,yp,zn,zp,com).items():
+				print(k,v)
+			print(pp)
+
+
+
+		elif bco.mode == 'EDIT_MESH':
+			pass
+
+		print('KOKOKO')
+
+		return{'FINISHED'}
 
 class SOT_OT_Clear_Value(bpy.types.Operator):
 	bl_idname = 'fgt.sot_clear_value'
@@ -549,15 +820,52 @@ class SOT_OT_Draw_Axis(bpy.types.Operator):
 				context.window_manager.modal_handler_add(self)
 				return {'RUNNING_MODAL'}
 
+class SOT_OT_Draw_Spots(bpy.types.Operator):
+	bl_idname = 'fgt.sot_draw_spots'
+	bl_label = 'SOT_OT_Draw_Spots'
+
+	def modal(self,context,event):
+
+		sot = context.scene.sot_props
+	
+		if not sot.draw_spots:
+			bpy.types.SpaceView3D.draw_handler_remove(self.draw_handler, 'WINDOW')
+			return {'CANCELLED'}		
+
+		try:
+			context.area.tag_redraw()
+		except:
+			stop_it = True
+			for area in bpy.context.window.screen.areas:
+				if area.type == 'VIEW_3D':
+					stop_it = False			
+			if stop_it:
+				bpy.types.SpaceView3D.draw_handler_remove(self.draw_handler, 'WINDOW')
+				sot.draw_spots = False
+				return {'CANCELLED'}
+			else:
+				return {'PASS_THROUGH'}
+		else:
+			context.area.tag_redraw()
+			return {'PASS_THROUGH'}
+
+	def invoke(self,context,event):
+		for area in bpy.context.window.screen.areas:
+			if area.type == 'VIEW_3D':
+				args = (self,context)
+				self.draw_handler = bpy.types.SpaceView3D.draw_handler_add(draw_spots_main, args, 'WINDOW', 'POST_VIEW')
+				context.window_manager.modal_handler_add(self)
+				return {'RUNNING_MODAL'}
+
 class SOT_Settings_Props(bpy.types.PropertyGroup):
 
 	loc_x: bpr.FloatProperty(subtype = 'DISTANCE', precision= 6)
 	loc_y: bpr.FloatProperty(subtype = 'DISTANCE', precision= 6)
 	loc_z: bpr.FloatProperty(subtype = 'DISTANCE', precision= 6)
 
-	rot_x: bpr.FloatProperty(subtype = 'ANGLE', min= -6.28319, max= 6.28319, precision= 6)
-	rot_y: bpr.FloatProperty(subtype = 'ANGLE', min= -6.28319, max= 6.28319, precision= 6)
-	rot_z: bpr.FloatProperty(subtype = 'ANGLE', min= -6.28319, max= 6.28319, precision= 6)
+	rot_x: bpr.FloatProperty(subtype = 'ANGLE', unit= 'ROTATION', min= -6.28319, max= 6.28319)#, precision= 2
+	rot_y: bpr.FloatProperty(subtype = 'ANGLE', min= -6.28319, max= 6.28319)
+	rot_z: bpr.FloatProperty(subtype = 'ANGLE', min= -6.28319, max= 6.28319)
 
 	z_axis: bpr.EnumProperty(name='',
 		items= [('z+','Z+ Same','Z+ axis untached as it is.',1),
@@ -591,18 +899,28 @@ class SOT_Settings_Props(bpy.types.PropertyGroup):
 		items= [('1','X+ to Z+ | Y+ same ','',1),('2','X+ to Y+ | Y+ to Z-','',2),
 				('3','X+ to Z- | Y+ to Y-','',3),('4','X+ to Y- | Y+ to Z+','',4)], default= '1')
 
-	draw_axis: bpr.BoolProperty(name = '', default = False, update= draw_axis_update)
 
+	drop_p: bpr.EnumProperty(items= [('1','X','',1),('2','Y','',2),('3','Z','',3)], default= '1')
+	drop_d: bpr.EnumProperty(items= [('1','Positive','',1),('2','Negative','',2)], default= '1')
+	drop_s: bpr.EnumProperty(items= [('1','World','',1),('2','Local','',2)], default= '1')	
+
+	draw_axis: bpr.BoolProperty(name = '', default = False, update= draw_axis_update)
+	draw_spots: bpr.BoolProperty(name = '', default = False, update= draw_spots_update)
 
 # Register/Unregister
 
 CTR = [
 	SOT_PT_Panel,
+	SOT_PT_Location,
+	SOT_PT_Orientation,
+	SOT_PT_Fixed_Snap,
 	SOT_OT_Set_Origin,
 	SOT_OT_Get_Transform,
 	SOT_OT_Rotate_Ninety,
+	SOT_OT_Fixed_Snap,
 	SOT_OT_Clear_Value,
 	SOT_OT_Draw_Axis,
+	SOT_OT_Draw_Spots,
 	SOT_Settings_Props,
 ]
 
