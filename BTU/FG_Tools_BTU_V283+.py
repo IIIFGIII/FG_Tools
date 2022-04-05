@@ -1,12 +1,12 @@
 bl_info = {
 	"name": "BTU",
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
-	"version": (1, 0),
+	"version": (1, 1),
 	"blender": (2, 83, 0),
-	"location": "Viev3D > N panel > FG_Tools > BTU",
+	"location": "Viev3D > N panel > FGT > BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
-	"warning": "Tested/work on 2.83.13LTS, 2.91, 2.92, 2.93Beta, 3.00Alpha ",
-	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU",
+	"warning": "Tested/work on 2.83.13LTS, 2.91, 2.92, 2.93, 3.0, 3.1.2 " ,
+	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
 	"category": "FG_Tools",
 }
 
@@ -19,7 +19,7 @@ class BTU_PT_Panel(bpy.types.Panel):
 	bl_idname = 'BTU_PT_Panel'
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
-	bl_category = 'FG_Tools'
+	bl_category = 'FGT'
 	bl_context = 'objectmode'
 
 	def draw(self,context):
@@ -306,9 +306,9 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 				bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 				sob = bpy.context.view_layer.objects.active
 
-				sob_loc = sob.location
+				sob_loc = (sob.location[0],sob.location[1],sob.location[2])
 				sob_rot = (sob.rotation_euler[0], sob.rotation_euler[1], sob.rotation_euler[2])
-				sob_scl = sob.scale
+				sob_scl = (sob.scale[0],sob.scale[1],sob.scale[2])
 				
 				# Remove temporary object/mesh data
 				types = {
