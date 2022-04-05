@@ -1,7 +1,7 @@
 bl_info = {
 	"name": "BTU",
 	"author": "IIIFGIII (discord IIIFGIII#7758)",
-	"version": (1, 0),
+	"version": (1, 1),
 	"blender": (2, 79, 0),
 	"location": " T panel > FGT_BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
@@ -305,9 +305,9 @@ class BTU_OT_Copy_Objects(bpy.types.Operator):
 				bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
 				sob = bpy.context.scene.objects.active
 
-				sob_loc = sob.location
+				sob_loc = (sob.location[0],sob.location[1],sob.location[2])
 				sob_rot = (sob.rotation_euler[0], sob.rotation_euler[1], sob.rotation_euler[2])
-				sob_scl = sob.scale
+				sob_scl = (sob.scale[0],sob.scale[1],sob.scale[2])
 
 				# Remove temporary object/mesh data
 				types = {
