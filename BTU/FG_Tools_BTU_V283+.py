@@ -6,7 +6,7 @@ bl_info = {
 	"location": "Viev3D > N panel > FGT > BTU",
 	"description": "Simple tools for transfering objects to Unreal Engine",
 	"warning": "Tested/work on 2.83.13LTS, 2.91, 2.92, 2.93, 3.0, 3.1.2 " ,
-	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU-Info",
+	"wiki_url": "https://github.com/IIIFGIII/FG_Tools/wiki/BTU",
 	"category": "FG_Tools",
 }
 
