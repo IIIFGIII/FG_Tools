@@ -5,7 +5,7 @@ bl_info = {
 	"blender": (2, 83, 0),
 	"location": "Viev3D > N panel > FG Tools > BMT",
 	"description": "Simple tools for UV Box Mapping.",
-	"warning": "Work in probres version!!!",
+	"warning": "Work in probres version!!! Blablabla",
 	"wiki_url": "https://github.com/IIIFGIII/FG_Tools",
 	"category": "FG_Tools",
 }
