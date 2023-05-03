@@ -11,6 +11,12 @@ Simply designtd tools for batch export mesh/copy objects transforms to Unreal En
 
 ![](https://i.imgur.com/ZoVP59l.gif)
 
+#### [EVC Editing Vertex Color](https://github.com/IIIFGIII/FG_Tools/wiki/EVC)
+
+Addon is designed for more technical side of vertex color works. It allow you to edit vertex colors right from mesh edit mode and provide you with additional tools for more uncommon tasks such like color randomizator, color move/copy/swap between channels, multiply/power and invert.
+
+![](https://i.imgur.com/hXD6GFy.gif)
+
 #### [ICO Icons Preview](https://github.com/IIIFGIII/FG_Tools/wiki/ICO)
 Preview list of existing in Blender icons.
 
