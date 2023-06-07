@@ -1,24 +1,45 @@
 ![title](https://i.imgur.com/Z3LPVmc.png)
-FG Tools is my own addons for blender I made for my self.
-Each addon I will place here will have [wiki page](https://github.com/IIIFGIII/FG_Tools/wiki) with some descripion and manual (or even some video).
-I made Blender [Artists page for FG Tools](https://blenderartists.org/t/fg-tools/1303872) - welcomed to discuss anything about FG Tools if you have questions or bugreports (also find me in discord IIIFGIII#7758).
+Hello there. This is repository for :hammer_and_wrench: FG Tools :hammer_and_wrench: stuff - addons I decided to made based on my experience of working with Blender 
 
-#### [ARR Addon Remove Reinstall](https://github.com/IIIFGIII/FG_Tools/wiki/ARR)
-One click (or hotkey) addon reinstalling with overwrite without necessity doing few clicks in preferences window.
+:fire::fire::fire: Addons that has no Wiki pages and not listed in below are not finished :fire::fire::fire:
 
-#### [BTU Blender To Unreal](https://github.com/IIIFGIII/FG_Tools/wiki/BTU)
+
+-----
+
+### EVC | Editing Vertex Color:
+- [EVC Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/EVC) (text description + GIFs / link to video manual)
+- [EVC Blender Artists Page](https://blenderartists.org/t/fg-tools-evc-editing-vertex-color-addon/1466298) (for feedback/discussions)
+- :arrow_down_small: Want to say "thank you" by :hearts:supporting:hearts: me with your :moneybag:  :arrow_down_small:?
+- [EVC Gumroad](https://forestgumpovu4.gumroad.com/l/EVC) ( $0+ pay how much you want)
+- [EVC Blender Market](https://blendermarket.com/products/fg-tools-evc--editing-vertex-color-addon) ($14 if you want to support me and Blender Community, my part is $9)
+
+EVC Addon is designed for more technical side of vertex color works. It allows you to edit vertex colors right from Mesh Edit mode and provide you with additional tools for more uncommon tasks such like color randomizator, color move/copy/swap between channels, multiply/power and invert.
+
+![](https://i.imgur.com/hXD6GFy.gif)
+
+-----
+
+### BTU | Blender To Unreal:
+- [BTU Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/BTU) (text description + GIFs / link to video manual)
+
 Simply designtd tools for batch export mesh/copy objects transforms to Unreal Engine.
 
 ![](https://i.imgur.com/ZoVP59l.gif)
 
-#### [EVC Editing Vertex Color](https://github.com/IIIFGIII/FG_Tools/wiki/EVC)
 
-Addon is designed for more technical side of vertex color works. It allow you to edit vertex colors right from mesh edit mode and provide you with additional tools for more uncommon tasks such like color randomizator, color move/copy/swap between channels, multiply/power and invert.
+## Help In Addons Development:
 
-![](https://i.imgur.com/hXD6GFy.gif)
+### ARR | Addon Remove Reinstall:
+- [ARR Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/ARR) (text description + GIFs)
 
-#### [ICO Icons Preview](https://github.com/IIIFGIII/FG_Tools/wiki/ICO)
-Preview list of existing in Blender icons.
+One click (or hotkey) addon reinstalling with overwrite without necessity of doing few clicks in preferences window.
+
+-----
+
+### ICO | Blender ICOns Preview:
+- [ICO Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/ICO) (text description + GIFs)
+
+Preview list of existing in Blender icons + aility to copy icon name for Python.
 
 ![](https://i.imgur.com/uifzxgT.gif)
 
