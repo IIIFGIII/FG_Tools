@@ -11,7 +11,7 @@ Hello there. This is repository for :hammer_and_wrench: FG Tools :hammer_and_wre
 - [EVC Blender Artists Page](https://blenderartists.org/t/fg-tools-evc-editing-vertex-color-addon/1466298) (for feedback/discussions)
 - :arrow_down_small: Want to say "thank you" by :hearts:supporting:hearts: me with your :moneybag:  :arrow_down_small:?
 - [EVC Gumroad](https://forestgumpovu4.gumroad.com/l/EVC) ( $0+ pay how much you want)
-- [EVC Blender Market](https://blendermarket.com/products/fg-tools-evc--editing-vertex-color-addon) ($14 if you want to support me and Blender Community, my part is $9)
+- [EVC Blender Market](https://blendermarket.com/products/fg-tools-evc--editing-vertex-color-addon) ($10 if you want to support me and Blender Community, my part is $6)
 
 EVC Addon is designed for more technical side of vertex color works. It allows you to edit vertex colors right from Mesh Edit mode and provide you with additional tools for more uncommon tasks such like color randomizator, color move/copy/swap between channels, multiply/power and invert.
 
