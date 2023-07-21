@@ -19,6 +19,17 @@ EVC Addon is designed for more technical side of vertex color works. It allows y
 
 -----
 
+### ABT | Advanced Bisect Tool (!!! WORK IN PROGRESS !!!):
+- [ABT Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/ABT) (no text descriprions or video manual, only keyboards manual image)
+
+ABT Addon is my own much more complex and advanced implementation of ideas implemented in [Bisect Snap addon](https://blenderartists.org/t/snap-bisect/679925) with more options for setting up slice, more vizualization of different things to help guess what is going on and etc.
+Still far from finished state but could be already used and should work well.
+
+![](https://i.imgur.com/I8SHv7p.gif)
+
+
+-----
+
 ### BTU | Blender To Unreal:
 - [BTU Git Wiki Page](https://github.com/IIIFGIII/FG_Tools/wiki/BTU) (text description + GIFs / link to video manual)
 
