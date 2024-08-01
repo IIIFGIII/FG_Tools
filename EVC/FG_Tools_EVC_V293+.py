@@ -19,7 +19,11 @@ from bpy_extras.view3d_utils import region_2d_to_location_3d as convert_screen_t
 from bpy_extras.view3d_utils import region_2d_to_origin_3d as convert_screen_to_global_origin
 
 bpr = bpy.props
-shd_uc = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+
+if (4, 0, 0) <= bpy.app.version:
+	shd_uc = gpu.shader.from_builtin('UNIFORM_COLOR')
+else:
+	shd_uc = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
 
 shading_preserve = ['SOLID','MATCAP','MATERIAL',False]
 nums_for_random = {'A':1, 'a':1, 'B':2, 'b':2, 'C':3, 'c':3, 'D':4, 'd':4, 'E':5, 'e':5, 'G':6, 'g':6, 'I':7, 'i':7, 'J':8, 'j':8, 'K':9, 'k':9, 'L':10, 'l':10, 'M':11, 'm':11, 'N':12, 'n':12,
